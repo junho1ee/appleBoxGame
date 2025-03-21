@@ -1,10 +1,10 @@
-# Fruit Box Game Solver
+# appleBoxGame Solver
 
-A tool for solving and automating the Fruit Box Game, a puzzle where you need to select boxes that sum to 10 to maximize your score.
+A tool for solving and automating the apple box game 10, a puzzle where you need to select boxes that sum to 10 to maximize your score.
 
 ## Overview
 
-This project provides an automated solver for the Fruit Box Game. It includes:
+This project provides an automated solver for the apple box game 10. It includes:
 
 - Multiple solving algorithms (DFS and QUBO)
 - GUI automation using PyAutoGUI
@@ -13,12 +13,12 @@ This project provides an automated solver for the Fruit Box Game. It includes:
 
 ## Game Link
 
-The Fruit Box Game can be played at: [https://en.gamesaien.com/game/fruit_box/](https://en.gamesaien.com/game/fruit_box/)
+The apple box game 10 can be played at: [https://en.gamesaien.com/game/fruit_box/](https://en.gamesaien.com/game/fruit_box/)
 
 ## Project Structure
 
 ```
-fruit-box-bot/
+appleBoxGame/
 ├── src/                     # Source code
 │   ├── models/              # Data models
 │   ├── algorithms/          # Solving algorithms (DFS, QUBO)
