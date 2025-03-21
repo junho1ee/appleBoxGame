@@ -17,17 +17,18 @@ from src.models.box import Strategy
 import src.config as config
 
 
-def run_with_pyautogui(algorithm: str = "dfs") -> None:
+def run_with_pyautogui(algorithm: str = "dfs", log_dir: str = None) -> None:
     """
     Run the solver using PyAutoGUI to interact with the screen.
-    
+
     Args:
         algorithm: Algorithm to use ('dfs' or 'qubo')
+        log_dir: Directory to save logs
     """
     # Initialize logger
     logger = Logger()
-    logger.initialize_log(mode="gui")
-    
+    logger.initialize_log(mode="gui", log_dir=log_dir)
+
     # Find reset button to get game bounds
     try:
         left, top, _, _ = locateOnScreen("imgs/reset.png", confidence=0.99)
@@ -35,15 +36,24 @@ def run_with_pyautogui(algorithm: str = "dfs") -> None:
 
         left += 8 * config.SCALE
         top -= 363 * config.SCALE
-        region = (left, top, config.SIZE * config.NUM_COLS, config.SIZE * config.NUM_ROWS)
+        region = (
+            left,
+            top,
+            config.SIZE * config.NUM_COLS,
+            config.SIZE * config.NUM_ROWS,
+        )
         logger.log_message(f"Game region: {region}")
 
         # Click to ensure game window is active
         leftClick(x=left / config.SCALE, y=top / config.SCALE)
 
         # Start the game
-        leftClick(x=left / config.SCALE - 3, y=top / config.SCALE + 368)  # Click "Reset"
-        leftClick(x=left / config.SCALE + 150, y=top / config.SCALE + 175)  # Click "Play"
+        leftClick(
+            x=left / config.SCALE - 3, y=top / config.SCALE + 368
+        )  # Click "Reset"
+        leftClick(
+            x=left / config.SCALE + 150, y=top / config.SCALE + 175
+        )  # Click "Play"
         logger.log_message("\n----- New Game Started -----")
 
         # Figure out the apple values
@@ -66,21 +76,24 @@ def run_with_pyautogui(algorithm: str = "dfs") -> None:
         # Calculate strategy with timing
         logger.log_message("Starting strategy search...")
         search_start_time = time.time()
-        
+
         if algorithm.lower() == "dfs":
             strategy = find_strategy(grid)
         elif algorithm.lower() == "qubo":
             # Import here to avoid circular imports
             from src.algorithms.qubo_solver import solve_fruit_box_with_qubo
+
             strategy = solve_fruit_box_with_qubo(grid)
         else:
             logger.log_message(f"Unknown algorithm: {algorithm}. Using DFS instead.")
             strategy = find_strategy(grid)
-            
+
         search_end_time = time.time()
         search_duration = search_end_time - search_start_time
         logger.log_message(f"Strategy found with score: {strategy.score}")
-        logger.log_message(f"Search algorithm completed in {search_duration:.2f} seconds")
+        logger.log_message(
+            f"Search algorithm completed in {search_duration:.2f} seconds"
+        )
 
         # Set up final log directory based on score
         logger.setup_final_log_directory(strategy.score, mode="gui")
@@ -108,7 +121,10 @@ def run_with_pyautogui(algorithm: str = "dfs") -> None:
         logger.log_message("\n----- Executing Strategy -----")
         current_score = 0
         for i, box in enumerate(strategy.boxes):
-            moveTo((left + box.x * config.SIZE) / config.SCALE, (top + box.y * config.SIZE) / config.SCALE)
+            moveTo(
+                (left + box.x * config.SIZE) / config.SCALE,
+                (top + box.y * config.SIZE) / config.SCALE,
+            )
             duration = 0.08 * math.hypot(box.width, box.height)
             drag(
                 box.width * config.SIZE / config.SCALE,
@@ -152,9 +168,7 @@ def run_with_pyautogui(algorithm: str = "dfs") -> None:
             log_file.write(f"- Total Apple Sum: {total}\n")
             log_file.write(f"- Final Score: {strategy.score}\n")
             log_file.write(f"- Number of Boxes Used: {len(strategy.boxes)}\n")
-            log_file.write(
-                f"- Algorithm Search Time: {search_duration:.2f} seconds\n"
-            )
+            log_file.write(f"- Algorithm Search Time: {search_duration:.2f} seconds\n")
             log_file.write("-" * 50 + "\n")
 
         # Save final grid state
@@ -163,9 +177,12 @@ def run_with_pyautogui(algorithm: str = "dfs") -> None:
             for row in grid:
                 f.write(" ".join(str(cell) for cell in row) + "\n")
 
-        logger.log_message(f"All log files have been saved to {logger.final_log_dir} directory.")
+        logger.log_message(
+            f"All log files have been saved to {logger.final_log_dir} directory."
+        )
 
     except Exception as e:
         logger.log_message(f"Error in PyAutoGUI mode: {e}")
         import traceback
-        logger.log_message(traceback.format_exc()) 
+
+        logger.log_message(traceback.format_exc())

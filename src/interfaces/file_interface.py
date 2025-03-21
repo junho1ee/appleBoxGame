@@ -13,7 +13,7 @@ from src.models.box import Strategy
 
 
 def run_from_problem_file(
-    problem_file: str, algorithm: str = "dfs"
+    problem_file: str, algorithm: str = "dfs", log_dir: str = None
 ) -> Optional[Strategy]:
     """
     Run the solver using a problem file without PyAutoGUI.
@@ -21,13 +21,14 @@ def run_from_problem_file(
     Args:
         problem_file: Path to the problem file
         algorithm: Algorithm to use ('dfs' or 'qubo')
+        log_dir: Directory to save logs
 
     Returns:
         Strategy object if successful, None otherwise
     """
     # Initialize logger
     logger = Logger()
-    logger.initialize_log(mode="file", problem_file=problem_file)
+    logger.initialize_log(mode="file", problem_file=problem_file, log_dir=log_dir)
 
     logger.log_message(f"Reading problem from file: {problem_file}")
 
