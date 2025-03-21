@@ -12,7 +12,7 @@ from pyautogui import (
 
 from src.utils.logger import Logger
 from src.utils.grid_utils import update_grid_after_box, print_grid
-from src.algorithms.dfs_solver import find_strategy
+from src.algorithms.solver import get_solver
 from src.models.box import Strategy
 import src.config as config
 
@@ -77,20 +77,17 @@ def run_with_pyautogui(algorithm: str = "dfs", log_dir: str = None) -> None:
         logger.log_message("Starting strategy search...")
         search_start_time = time.time()
 
-        if algorithm.lower() == "dfs":
-            strategy = find_strategy(grid)
-        elif algorithm.lower() == "qubo":
-            # Import here to avoid circular imports
-            from src.algorithms.qubo_solver import solve_fruit_box_with_qubo
-
-            strategy = solve_fruit_box_with_qubo(grid)
-        else:
-            logger.log_message(f"Unknown algorithm: {algorithm}. Using DFS instead.")
-            strategy = find_strategy(grid)
+        solver = get_solver(algorithm)
+        strategy = solver.solve(grid)
+        logger.log_message(f"Using {solver.name} algorithm")
 
         search_end_time = time.time()
         search_duration = search_end_time - search_start_time
         logger.log_message(f"Strategy found with score: {strategy.score}")
+        logger.log_message(
+            f"Search algorithm completed in {search_duration:.2f} seconds"
+        )
+
         logger.log_message(
             f"Search algorithm completed in {search_duration:.2f} seconds"
         )

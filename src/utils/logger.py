@@ -30,28 +30,30 @@ class Logger:
         self, score: int, mode: str = "gui", problem_file: Optional[str] = None
     ) -> None:
         """Set up final log directory based on score and execution mode"""
-        # Create directory with datetime_score format
-        # If in file mode, add problem filename (without extension)
-        if mode == "file" and problem_file:
-            problem_name = os.path.splitext(os.path.basename(problem_file))[0]
-            self.final_log_dir = (
-                f"{self.logs_base_dir}/{self.current_time}_{score}_{problem_name}"
-            )
-        else:
-            self.final_log_dir = f"{self.logs_base_dir}/{self.current_time}_{score}"
+        # If we already have a final log directory (from initialize_log), use it
+        if not self.final_log_dir:
+            # Otherwise, create directory with datetime_score format
+            if mode == "file" and problem_file:
+                problem_name = os.path.splitext(os.path.basename(problem_file))[0]
+                self.final_log_dir = (
+                    f"{self.logs_base_dir}/{self.current_time}_{score}_{problem_name}"
+                )
+            else:
+                self.final_log_dir = f"{self.logs_base_dir}/{self.current_time}_{score}"
 
-        os.makedirs(self.final_log_dir, exist_ok=True)
+            os.makedirs(self.final_log_dir, exist_ok=True)
 
-        # Set new log file path
-        new_log_filename = f"{self.final_log_dir}/game_log.txt"
+            # If we're using a temporary log file, move it to the final location
+            if self.log_filename == self.tmp_log_filename:
+                new_log_filename = f"{self.final_log_dir}/game_log.txt"
 
-        # Copy contents from temporary log file to new log file
-        if os.path.exists(self.tmp_log_filename):
-            shutil.copy(self.tmp_log_filename, new_log_filename)
-            os.remove(self.tmp_log_filename)  # Delete temporary file
+                # Copy contents from temporary log file to new log file
+                if os.path.exists(self.tmp_log_filename):
+                    shutil.copy(self.tmp_log_filename, new_log_filename)
+                    os.remove(self.tmp_log_filename)  # Delete temporary file
 
-        # Update log filename
-        self.log_filename = new_log_filename
+                # Update log filename
+                self.log_filename = new_log_filename
 
     def initialize_log(
         self,
@@ -64,7 +66,7 @@ class Logger:
         if log_dir:
             self.final_log_dir = log_dir
         else:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             if mode == "file" and problem_file:
                 problem_name = os.path.splitext(os.path.basename(problem_file))[0]
                 self.final_log_dir = f"logs/file_{problem_name}/default/{timestamp}"
@@ -74,9 +76,8 @@ class Logger:
         # Create log directory if it doesn't exist
         os.makedirs(self.final_log_dir, exist_ok=True)
 
-        # Set log filenames
-        self.tmp_log_filename = os.path.join(self.final_log_dir, "log.txt")
-        self.log_filename = self.tmp_log_filename
+        # Set log filename directly to final location
+        self.log_filename = os.path.join(self.final_log_dir, "log.txt")
 
         # Create header
         header = f"Fruit Box Game Log - {mode.capitalize()} Mode\n"
@@ -88,5 +89,5 @@ class Logger:
 
         header += "\n"
 
-        with open(self.tmp_log_filename, "w") as log_file:
+        with open(self.log_filename, "w") as log_file:
             log_file.write(header)
