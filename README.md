@@ -2,6 +2,12 @@
 
 A tool for solving and automating the apple box game 10, a puzzle where you need to select boxes that sum to 10 to maximize your score.
 
+## Running example
+
+https://github.com/user-attachments/assets/b7dd9cd5-7423-45bc-a941-9385ddd5a339
+
+
+
 ## Overview
 
 This project provides an automated solver for the apple box game 10. It includes:
