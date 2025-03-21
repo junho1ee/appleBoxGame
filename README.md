@@ -1,0 +1,4 @@
+appleBoxGame solver
+=============
+
+Toy project
